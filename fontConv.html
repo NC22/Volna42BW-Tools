@@ -1,0 +1,206 @@
+<!-- 
+
+	Font converter tool for my E INK projects. designed to work with my C++ libs
+	
+	by nradiowave
+	
+	Part of Volna 42 project  | Actual version of tool can be found here https://42volna.ru/tools/fontconverter
+	
+-->
+<html>
+
+<head>
+
+<link href="common/style.css" rel="stylesheet">
+<link href="fontConv/style.css" rel="stylesheet">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+
+</head>
+
+<body class="normal-mode">
+
+<div class="app-wrap">
+
+<div class="app-header">
+	<b id="app-name"></b> <b id="app-version"></b>
+	<a href="#" style="" id="app-extend-mode">расширенный режим</a>
+</div>
+
+<div class="app-body">
+
+	<div id="buttons" class="buttons">
+		
+		<div class="extended-mode-only">
+		<button class="form-toggle" data-target="monitor-config-form">▼ Настройки экрана</button>        
+		<div id="monitor-config-form" class="form-wrap">
+		
+			<div class="monitor-type-widget" data-id="monitor-type"></div>
+			<div class="monitor-type-custom" data-id="monitor-type-custom">
+				<p><input type="text" id="monitor-type-custom-width" value="480"></p>
+				<p><input type="text" id="monitor-type-custom-height" value="320"></p>
+			</div>
+			<div style="">
+			Повернуть экран : 
+					
+			<select id="screen-rotate">
+				<option value="0">0 градусов</option><option value="90">90 градусов</option><option value="180">180 градусов</option><option value="270">270 градусов</option>
+			</select>
+			
+			</div>
+			<div style="display : none;">
+			Вывод под углом : 
+					
+			<select id="output-rotate">
+				<option value="0">0 градусов</option><option value="90">90 градусов</option><option value="180">180 градусов</option><option value="270">270 градусов</option>
+			</select>
+			
+			</div>
+			
+		</div>
+		
+		<button class="form-toggle" data-target="image-from-file-form">▼ Загрузить cpp, bin файл</button>        
+		<div id="image-from-file-form" class="form-wrap">
+			
+			<p>Выберите картинку : <input type="file" id="cpp-image"> </p>         
+			
+			<p><label><input type="checkbox" id="cpp-image-size-auto" value="1" checked>Пропроции картинки равны пропорциям экрана</label></p>
+			<p><input type="text" id="cpp-image-width" value="168"></p>
+			<p><input type="text" id="cpp-image-height" value="168"></p>
+			<button id="cpp-image-refresh" class="action">Обновить</button>
+			
+		</div>
+		<button class="form-toggle" data-target="image-from-image-form">▼ Загрузить картинку</button>        
+		<div id="image-from-image-form" class="form-wrap">
+			
+			<!-- 
+				опционально ужимать картинку до определенной ширины \ высоты (сейчас автоматически подгоняется под размер экрана
+				опционально отражать картинку по горизонтали \ вертикали
+				
+			 -->
+			 
+			<p>
+				<label>
+					<select id="image-common-fit-mode">
+						<option value="fitImage">Вписать картинку в экран</option>
+						<option value="no">Выходить за границы</option>
+						<option value="fitScreen">Подстроить экран под картинку</option>
+					</select>
+				</label>
+			 </p>
+			
+			<p>Картинка для чб буфера : <input type="file" id="image-image"> </p>
+			<div class="conversion-settings" data-id="image"></div>
+			
+			<p>Картинка для доп. буфера : <input type="file" id="image-image-2"> </p> 
+			<div class="conversion-settings" data-id="image-2"></div>
+			
+			<button id="image-image-refresh" class="action">Обновить</button>
+			
+			<!-- 
+			
+				TODO 
+				один буфер для 4-х цветного дисплея, прокраска по соответствию цветам дисплея 
+			
+			-->
+			
+		</div>
+		</div>
+		<button class="form-toggle normal-mode-first" data-target="json-font-data-form">▼ Восстановить 1-bit шрифт из JSON файла</button>
+		<div class="form-wrap" id="json-font-data-form">
+			
+			<p>JSON файл шрифта : <input type="file" id="json-font-data-json-file"> </p>        
+			
+			<button id="json-font-data-show" class="action">Загрузить</button>
+		</div>
+		
+		<button class="form-toggle" data-target="font-generator-form">▼ Создать 1-bit шрифт</button>
+		<div class="form-wrap" id="font-generator-form">
+			
+			<!-- шрифт из файла -->
+			Исходный шрифт <select id="font-generator-font"></select>
+			<div id="font-generator-license"></div>
+			
+			<p>Из файла : <input type="file" id="font-generator-from-file"> </p> 
+			
+			Набор символов : <input id="font-generator-letter-set" type="text" value="">
+			Размер тайла (px) : <input id="font-generator-image-size" type="text" value="44">
+			Размер шрифта (px) : <input id="font-generator-font-size" type="text" value="40">
+			Межсимвольный интервал (px) : <input id="font-generator-line-width" type="text" value="0">
+			Порог по яркости (0.1 - 1) : <input id="font-generator-font-threshhold" type="text" value="0.8">
+			
+			Тестовый текст : <input id="font-generator-text" type="text" value="Fancy БулощЩка 12.23 ℃">
+			
+			<!-- 
+				--TODO--
+				редактирование элементов по клику (или зможность точечной замены бинарных данных с перерасчетом смещений в сжатом виде + изменение размеров)            
+			-->
+			
+			<p id="font-generator-log"></p>
+			<button id="font-generator-show" class="action">Сгенерировать</button>
+			
+		</div>
+		
+		<div id="screen-output-buttons">	
+			
+			<div class="extended-mode-only">
+			<button class="form-toggle" data-target="screen-buffer-controlls">▼ Буфер экрана</button>
+			<div class="form-wrap" id="screen-buffer-controlls">
+				<button id="image-to-cpp">С++ код картинки</button>
+				<button id="screen-to-cpp">С++ код всего буфера экрана</button>   
+				<button id="image-to-bin">bin-файл картинки</button>
+			</div>
+			</div>
+			<button id="font-glyph-editor-display">Редактор символов</button>
+			<button id="font-to-cpp">C++ код шрифта</button>
+			<button id="font-to-js">JSON код шрифта</button>
+				
+		</div>
+		
+		<div id="notice"></div>
+	</div>
+
+	<div class="screen-wrap">
+	   
+		<div id="screen-info"></div> 
+
+		<div id="screen-wrap"><canvas id="screen"></canvas></div>
+		<div id="screen-glyphs"></div>
+		<div id="font-editor-glyph-edit">		
+		</div>
+		<div id="screen-output-result"><textarea id="screen-output-result-data"></textarea></div>
+	</div>
+
+	<div style="clear : both;"></div>
+</div>
+
+
+<div id="result" class="notice"><div id="result-close">X</div><div></div></div>
+			
+<script type="text/javascript" src="fontConv/config.js"></script> 
+<script type="text/javascript" src="fontConv/locale.js"></script> 
+<script type="text/javascript" src="fontConv/fontConv.js"></script> 
+
+<!--script type="text/javascript" src="fontConv/uitest/font38x38.js"></script>
+<script type="text/javascript" src="fontConv/uitest/font17x17.js"></script-->
+<script type="text/javascript" src="fontConv/uitest/cat245x226.js"></script>
+<script>   
+
+
+var controller = new KellyEInkConverter();
+	controller.setLocale(ENVLOC);
+    controller.init(ENV);
+	
+	var monitor = controller.setMonitor(0); // 4in2	
+	//	monitor.width = 440;	
+	var screen = controller.screenInit();
+	
+	controller.colorMode = monitor.colors.BLACK;
+	controller.renderImageArrayToBuffer(cat245x226, 20, 300 - 226 - 26, 245, 226, false, false, true, false, 0, 0, 0, 0, false);       
+    // controller.drawString(10, 44, 'radiokellyc@gmail.com', fontData_cbold38x38, true);
+    // controller.drawString(10, 30, 'nradiowave::', fontData_cbold17x17, true);        
+	controller.screenUpdate();
+	
+	
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+
+
+/* Feature currently unused and unfinished, can be usefull to automate animation generation */
+#screen-animation {
+	display : none;
+}
+
+#screen {
+
+    text-align : center;
+}     
+     
+#screen table {
+    display : inline-block;
+}
+     
+#screen td {
+    width: 16px;
+    height: 16px;
+    min-height: 16px;
+    min-width: 16px;
+    overflow: hidden;
+    background: #222;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    box-sizing: border-box;
+    border-radius: 0;
+    cursor : pointer;
+}
+
+#screen td.active, #screen td:hover {
+    background : #2feeff;
+}
+
+#screen td:hover {
+    background : #91c3c7;
+}
+
+.frame-select.active {
+    font-weight : bold;
+}
+
+textarea {
+    min-height : 200px;
+}

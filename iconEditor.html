@@ -1,0 +1,126 @@
+<!-- 
+
+	Glyph & icon editor tool for my LED clock & E INK projects. designed to work with small resolution images
+	
+	Animations ui buttons & functions is unfinished
+	
+	by nradiowave
+	
+	Part of Volna 42 project  | Actual version of tool can be found here https://42volna.ru/tools/glypheditor
+	
+-->
+
+<html>
+
+<head>
+<link href="common/style.css" rel="stylesheet">
+<link href="iconEditor/style.css" rel="stylesheet">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+
+</head>
+
+<body>
+<div class="app-wrap">
+
+<div class="app-header">
+	<b id="app-name"></b> <b id="app-version"></b>
+</div>
+
+<div class="app-body">
+
+<div id="buttons" class="buttons">
+    
+    <!-- Bitmap editor -->
+    
+    <button class="form-toggle" data-target="image-from-scratch-form">▼ Создать \ Вырезать</button>
+    
+    <div id="image-from-scratch-form" class="form-wrap">
+        
+        <p>Ширина :</p>
+        
+        <input id="image-from-scratch-width" type="text" value="16">
+        <p>Высота: </p>
+        
+        <input id="image-from-scratch-height" type="text" value="16">
+        
+        <label> <input type="checkbox" id="image-from-scratch-cut" checked> Вырезать из текущего экрана </label><br>
+            
+        Отступ слева : <input id="image-from-scratch-offset-x" type="text" value="0">
+        Отступ сверху : <input id="image-from-scratch-offset-y" type="text" value="0">
+    
+        <button id="image-from-scratch" class="action">Создать</button> 
+    </div>
+    
+    <button class="form-toggle" data-target="image-from-file-form">▼ Из файла</button>        
+    <div id="image-from-file-form" class="form-wrap">
+        
+        <p>Выберите картинку : <input type="file" id="image"> </p>
+        
+        <p>Цвет фона картинки : <select id="image-bg-type"><option value="white" selected>Светлый</option><option value="black">Темный</option></select> </p>
+        
+        <p>Уровень чувствительности к яркости : <!--input type="text" id="image-value" value="0.5"--> </p>
+        
+        <input class="slider" id="image-value" type="text" value="0.5">
+    
+        <button id="image-refresh" class="action">Обновить</button>
+    </div>
+    
+    <button class="form-toggle" data-target="image-from-data-form">▼ Картинка из данных</button>
+    <div class="form-wrap" id="image-from-data-form">
+        
+        <!-- TODO - достаточно ширины -->
+        Размер картинки : <input type="text" id="image-from-data-width" placeholder="Ширина" value="32"> х <input type="text" id="image-from-data-height" placeholder="Высота" value="16">
+        
+        <!-- 0b is the Python \ C++ \ JS prefix for the representation of binary numbers. -->
+        <p>Числа в двоичной (binary - 0b111010) или в шестнадцатиричной (hex - 0xA1) системе исчисления через пробел</p>
+        
+        <textarea id="image-from-data-code">
+            0xE2 0xEE 0xAE 0xEE 0xA6 0xA2 0xA8 0xA2 0xAA 0x22 0xA8 0x82 0xA2 0x2E 0xEE 0xE4 0xA2 0xE2 0x22 0xA8 0xA2 0x82 0x22 0xA8 0xA2 0x82 0x22 0xA8 0xE2 0xEE 0x2E 0xE8
+        
+        </textarea>
+        
+        <button id="image-from-data-show" class="action">Вывести</button>
+    </div>
+    
+        <button class="image-code action">Код буфера экрана</button>
+        
+        <button id="image-invert" class="action">Инвертировать</button>
+        <!-- могут быть за пределами буфера - добавить кнопку применить чтобы сбросить сдвиг -->
+        
+        <p>Сдвиг слева :</p>
+        
+        <input class="slider" id="image-x" type="text" value="0">
+        
+        <p>Сдвиг вверх : </p>
+        
+        <input class="slider" id="image-y" type="text" value="0">
+    <div id="notice"></div>
+</div>
+
+<div class="screen-wrap">
+   
+    <div id="screen-info"></div> 
+    <div id="screen-info-a">Размер пикселей экрана : <button id="screen-minus">-</button><button id="screen-plus">+</button></div> 
+          
+    <div id="screen"></div>
+    <div id="screen-animation">
+        <p>Кадры анимации :</p>
+        
+        <div id="screen-animation-frames"></div>
+        <button id="screen-animation-frames-add">Добавить</button>
+        <button id="screen-animation-frames-delete">Удалить</button>
+    </div> 
+</div>
+
+<div style="clear : both;"></div>
+
+</div>
+
+<script type="text/javascript" src="common/kellySimpleSlider.js"></script>
+<script type="text/javascript" src="iconEditor/config.js"></script> 
+<script type="text/javascript" src="iconEditor/iconEditor.js"></script> 
+<script>   
+	imageConverter.init(ENV);
+</script>
+</body>
+</html>

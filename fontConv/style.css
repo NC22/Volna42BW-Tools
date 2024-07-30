@@ -1,0 +1,114 @@
+
+.test-ui-buttons {
+	/*display : none;*/
+}
+
+#app-extend-mode {
+	float : right;
+	margin-right : 12px;
+}
+
+.normal-mode .normal-mode-first {
+	margin-top : 0;
+}
+
+.extended-mode-only {
+	display : none;
+}
+
+.extended-mode .extended-mode-only {
+	display : block;
+}
+
+#font-generator-license {
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+#font-editor-glyph-edit  {
+	
+	padding : 12px;
+}
+
+.font-gliph-replace-form textarea {
+	width : 500px;
+	min-height : 230px;
+	margin-top : 12px;
+}
+
+.font-gliph-replace-form  {
+	margin-bottom : 30px;
+}
+
+
+.font-gliph-replace-form {
+	text-align : left;
+}
+
+#screen {
+    margin-top : 12px;
+    border-left: 10px dashed #4f4f4f;
+}     
+   
+.conversion-settings input[type=text]{
+    width: 32px;
+    margin-left: 6px;
+    text-align: center;
+}
+
+#screen-output-buttons button {
+    margin-top: 12px;
+    display: block;
+    width: 100%;
+}
+
+div#screen-glyphs {
+    margin-top: 12px;
+}
+
+div#screen-glyphs img {
+    border: 4px solid transparent;
+}
+
+div#screen-glyphs img:hover {
+    border-color: #f90;
+}
+
+#screen-output-result-data {
+    display : none;
+}
+
+#screen-output-result-data.show {
+    display : block;
+}
+
+.screen-rotate-90 #screen {
+    transform: rotate(90deg);
+}
+
+.screen-rotate-90, .screen-rotate-270  {
+    padding-bottom: 70px;
+    padding-top: 70px;
+}
+
+.screen-rotate-180 #screen {
+    transform: rotate(180deg);
+}
+
+.screen-rotate-270 #screen {
+    transform: rotate(-90deg);
+}
+
+.font-editor-glyph-setting {
+    text-align: left;
+}
+
+.font-editor-glyph-setting label {
+    min-width: 216px;
+    display: inline-block;
+}
+
+#font-editor-glyph-edit input[type="text"]{
+	display: inline-block;
+    width: auto;
+}
