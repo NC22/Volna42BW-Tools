@@ -1,4 +1,4 @@
-# Default open-source or free o use fonts
+# Default open-source or free to use fonts
 
 Fonts suggested here used only for testing and non-commercial purposes.
 
