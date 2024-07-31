@@ -11,9 +11,9 @@ For compile on Linux related system, be sure you have installed g++ compiler
 
 Usually on Ubuntu \ Debian like systems
 
-sudo apt update
-sudo apt install build-essential
+sudo apt update<br>
+sudo apt install build-essential<br>
 
-cd to source file directory and enter command "make"
+navigate to source file directory and enter command "make"
 
 enter "./example.sh" to run test. This will pack test.html to h file in out folder

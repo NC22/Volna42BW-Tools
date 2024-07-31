@@ -14,7 +14,7 @@
 
 
 /* 
-	Simple tool for remove comments from html, js, css files and prepare them to store in binary format optimized for Arduino Framework
+	Simple tool for remove comments from html, js, css files and prepare them to store in format optimized for Arduino Framework
 	
 	by nradiowave | part of Volna 42 project
 */
