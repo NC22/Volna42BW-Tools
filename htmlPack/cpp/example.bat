@@ -1,6 +1,6 @@
 :: command example for conver specified file to binary C++ array ready to use in Arduino Framework
+:: folder "out"and any sub folders must exist
 
-:: htmltobin.exe client.html out/client 0
-:: htmltobin.exe clienthttpproto.js out/clienthttpproto 0
+htmlpack.exe test.html out/test
 
 pause

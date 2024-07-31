@@ -5,7 +5,13 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
+#ifdef _WIN32
 #include <windows.h>
+#define SETUP_CONSOLE() SetConsoleOutputCP(CP_UTF8)
+#else
+#define SETUP_CONSOLE()
+#endif
+
 
 /* 
 	Simple tool for remove comments from html, js, css files and prepare them to store in binary format optimized for Arduino Framework
@@ -79,7 +85,7 @@ string getFileName(string input) {
 
 int main(int argc, char *argv[])
 {
-    SetConsoleOutputCP( CP_UTF8 );
+    SETUP_CONSOLE();
     
     string removeCommentsRegExp = "\\/\\/[^\n\r]+?(?:\\*\\)|[\n\r])";
     // string removeCommentsRegExp2 = "/\\*.*?\\*/";

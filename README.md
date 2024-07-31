@@ -10,4 +10,4 @@ Addition tools, related to <a href="https://42volna.ru/">Volna 42 BW</a> project
 
 # Tool for convert html, js, css data
 
-<b>htmlTobin</b> - command-line tool written in C++ for convert html, js, css data to binary C++ array, ready to use in Arduino Framework. I compiled it only on Windows machine, please suggest configurations and instructions for other OS's if you have one
+<b>htmlpack</b> - command-line tool written in C++ for convert html, js, css data to C++ progmem packed string with remove comments, ready to use in Arduino Framework. 
