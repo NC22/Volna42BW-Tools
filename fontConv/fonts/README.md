@@ -2,7 +2,7 @@
 
 Fonts suggested here used only for testing and non-commercial purposes.
 
-Check actual license of each font before use it in commercial pojects. 
+Check actual license of each font before use it in commercial projects. 
 
 As I checked, all listed here fonts is free, both for personal and commercial use. Please leave message to <b>radiokellyc@gmail.com</b> if some fonts license info needs to be updated
 or you can point me to correct license information by editing ./fontConv/config.js file and leave comment with all related links and info about font.
