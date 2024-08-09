@@ -360,7 +360,9 @@ function KellyEInkConverter() {
   
         var loaded = 0; var total = 0;
         var addFRequest = function(i, fitem, onLoad) {
-        
+            
+            if (fitem[5] !== true && (window.location.host.indexOf('42volna') != -1 || window.location.host.indexOf('volna42') != -1)) return;
+            
             total++;
             
             const oxygenFontFace = new FontFace(
@@ -384,11 +386,8 @@ function KellyEInkConverter() {
         }
         
         var onFLoad = function(i, fitem, result) {
-            
-            var skip = false;
-            if (fitem[5] !== true && (window.location.host.indexOf('42volna') != -1 || window.location.host.indexOf('volna42'))) skip = true;
-            
-            if (result && !skip) handler.fontsLoaded.push(i);
+                 
+            if (result) handler.fontsLoaded.push(i);
             
             console.log('[' + loaded + '/' + total + '] ID : ' + i + ' | font ' + fitem[2] + ' --- READY [' + (result ? 'OK' : 'FAIL') + ']');
             if (loaded >= total) {
