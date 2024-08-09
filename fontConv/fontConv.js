@@ -20,7 +20,8 @@
 
 		Функции drawPixel, drawImage, imageToCpp можно вынести отдельным классом в зависимости от битности (сейчас частичная поддержка 2-битных дисплеев с четыремя цветами вынесена в функции с постфиксом "Merged")
 		скорее всего это реализовывать не нужно, здесь упор на корректное преобразование и конвертацию шрифтов, а преобразование картинок будет встроено в UI самих устройств на ESP	
-		Функции добавления \ удаления глифов помимо модификации. Доработать glypheditor, чтобы были методы вызова и можно было использовать прямо здесь погружая блок редактирования глифа вместо прямой вставки бинарного текста
+		Функции добавления \ удаления глифов помимо модификации, редактирование кода-символа для существующих элементов
+        Доработать glypheditor, чтобы были методы вызова и можно было использовать прямо здесь погружая блок редактирования глифа вместо прямой вставки бинарного текста
 */
 
 function KellyEInkConverter() {
@@ -383,8 +384,11 @@ function KellyEInkConverter() {
         }
         
         var onFLoad = function(i, fitem, result) {
-        
-            if (result) handler.fontsLoaded.push(i);
+            
+            var skip = false;
+            if (fitem[5] !== true && (window.location.host.indexOf('42volna') != -1 || window.location.host.indexOf('volna42'))) skip = true;
+            
+            if (result && !skip) handler.fontsLoaded.push(i);
             
             console.log('[' + loaded + '/' + total + '] ID : ' + i + ' | font ' + fitem[2] + ' --- READY [' + (result ? 'OK' : 'FAIL') + ']');
             if (loaded >= total) {
@@ -1527,7 +1531,7 @@ function KellyEInkConverter() {
 	handler.fontGeneratorUpdatePreviewText = function() {
 		if (handler.fontData) {
 			screenInit(monitor.width, monitor.height);
-			console.log(handler.fontData.settings.maxOffsetY);
+			// console.log(handler.fontData.settings.maxOffsetY);
 			handler.drawString(20, 20, document.getElementById('font-generator-text').value, handler.fontData, true);
 			// handler.drawString(20, handler.fontData.settings.h + handler.fontData.settings.maxOffsetY + 8, "1234567890%", handler.fontData, true);
 			screenUpdate();
@@ -1825,20 +1829,25 @@ function KellyEInkConverter() {
 			}
 			
 			var generateFontByFormData = function() {
-				
+                
+				var fontItem = parseInt(document.getElementById('font-generator-font').value);
+                
+                if (handler.dinamicFont === false && isNaN(fontItem)) {
+                    handler.print('Дождитесь загрузки набора шрифтов или выберите локальный файл', false);
+                    return false;
+                }
+                
 				showFontGlyphEditor(false);
-				handler.showFontDrawGlyphButtons(false);
-				
-				clearDinamicFont();
+				handler.showFontDrawGlyphButtons(false);				
 			
 				var fontSize = parseInt(document.getElementById('font-generator-font-size').value);
 				var imageSize = parseInt(document.getElementById('font-generator-image-size').value);
 				var threshhold = validateFloatString(document.getElementById('font-generator-font-threshhold').value);
 				
 				console.log(handler.dinamicFont);
-				
+                
 				handler.fontGenerator(
-					handler.dinamicFont !== false ? false : parseInt(document.getElementById('font-generator-font').value), 
+					handler.dinamicFont !== false ? false : fontItem, 
 					imageSize, 
 					fontSize, 
 					document.getElementById('font-generator-text').value, 
@@ -1846,6 +1855,8 @@ function KellyEInkConverter() {
 					parseInt(document.getElementById('font-generator-line-width').value),
 					document.getElementById('font-generator-letter-set').value,
 				);
+                
+                return true;
 			}
 			
 			if (handler.fontData && handler.fontDataModified) {
@@ -1860,8 +1871,15 @@ function KellyEInkConverter() {
 				return;
 			}
 			
+            clearDinamicFont();
+            
 			if (document.getElementById('font-generator-from-file').files.length > 0) {
+                                
 				initDinamicFont(function(success) {
+                    
+                    console.log('Dynamic font load : ');
+                    console.log(handler.dinamicFont);
+                    
 					if (!success) handler.print('Некорректный файл шрифта', true);
 					else generateFontByFormData();
 				});
