@@ -5,7 +5,7 @@ Config for font converter
 window.ENV = {
     
     name : "KellyC Font Converter",
-    version : "0.8",
+    version : "0.82",
     
     fonts : [
         // ["36px FontFamily HelveticaBold", "FontFamily HelveticaBold", 'HelveticaBold.woff'],
@@ -15,7 +15,7 @@ window.ENV = {
         // ["36px FontFamily motorola1", "FontFamily motorola1", 'motorola1.ttf'],
         // ["36px FontFamily motorola2", "FontFamily motorola2", 'motorola2.ttf'],
         ["36px FontFamily comfortaa-bold", "FontFamily comfortaa-bold", 'comfortaa-bold.woff2', "https://fonts.google.com/specimen/Comfortaa/about", "Free, both for personal and commercial use", true],
-        ["36px FontFamily pixel1", "FontFamily pixel1", 'pixel1.otf', false, "Pixel Digivolve (Neale Davidson) 2015. All Rights Reserved", true],
+        ["36px FontFamily pixel1", "FontFamily pixel1", 'pixel1.otf', false, "Pixel Digivolve (Neale Davidson) 2015. All Rights Reserved"],
         // ["36px FontFamily mono", "FontFamily mono", 'mono.ttf'],
         // ["36px FontFamily Minecraft", "FontFamily Minecraft", 'Minecraft.woff'],
         ["36px FontFamily Roboto-Bold", "FontFamily Roboto-Bold", 'Roboto-Bold.ttf', "https://fonts.google.com/specimen/Roboto/about", "Apache License, Version 2.0."],
@@ -24,7 +24,7 @@ window.ENV = {
         //  ["36px FontFamily Oxygen", "FontFamily Oxygen", 'oxygen.woff2'],
         ["36px FontFamily FreeMono", "FontFamily FreeMono", 'FreeMono.ttf', "https://en.wikipedia.org/wiki/GNU_FreeFont", "GNU FreeFont"],
         ["36px FontFamily FreeMonoBold", "FontFamily FreeMonoBold", 'FreeMonoBold.ttf', "https://en.wikipedia.org/wiki/GNU_FreeFont", "GNU FreeFont"],
-        ["36px FontFamily Monocraft", "FontFamily Monocraft", 'Monocraft.ttf', "https://github.com/IdreesInc/Monocraft", "SIL Open Font License 1.1"], 
+        ["36px FontFamily Monocraft", "FontFamily Monocraft", 'Monocraft.ttf', "https://github.com/IdreesInc/Monocraft", "SIL Open Font License 1.1", true], 
         // ["36px FontFamily Bahamas", "FontFamily Bahamas", 'Bahamas.ttf'],
         ["36px FontFamily Awesome", "FontFamily Awesome", 'Awesome.ttf', "https://fontawesome.com/v4/license/", "GPL friendly | SIL OFL 1.1"],
     ],

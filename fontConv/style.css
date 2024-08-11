@@ -70,8 +70,22 @@ div#screen-glyphs img {
     border: 4px solid transparent;
 }
 
-div#screen-glyphs img:hover {
+div#screen-glyphs img:hover, div#screen-glyphs img.active  {
     border-color: #f90;
+}
+
+div#screen-glyphs .screen-glyphs-add {
+    width: 44px;
+    height: 44px;
+    vertical-align: top;
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    margin: 4px;
+    /* box-sizing: border-box; */
+    background: #09c1ec;
+    font-weight: bold;
+    font-size: 29px;
 }
 
 #screen-output-result-data {

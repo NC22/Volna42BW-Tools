@@ -201,6 +201,10 @@ button.action {
 	text-align : center;
 }
 
+button.action.action-delete {
+   background: #ff0025e3;
+}
+
 #result {
 	position: fixed;
 	left: 12px;

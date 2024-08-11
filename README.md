@@ -1,5 +1,5 @@
 # Volna42-Tools
-Addition tools, related to <a href="https://42volna.ru/">Volna 42 BW</a> project of weather station
+Addition tools, related to <a href="https://github.com/NC22/Volna42BW/">Volna 42 BW</a> project of weather station
 
 
 # Tools for working with 1-bit Graphics

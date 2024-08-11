@@ -5,14 +5,14 @@
    @description    Tool for convert fonts to format, compatible with KellyCanvas library font structures. Used for prepare fonts and test binary output in my ESP8266 \ ESP32 projects
    @author         Rubchuk Vladimir <torrenttvi@gmail.com> aka nradiowave
    @license        GPLv3
-   @version        v 0.8 18.07.24
+   @version        v 0.82 11.08.24
 	
-	Part of Volna 42 project  | Actual version of tool can be found here https://42volna.ru/tools/fontconverter
+	Part of Volna 42 project  | Actual version of tool can be found here https://42volna.com/tools/fontconverter
 	
 	- Converts fonts (ttf, woff, woff2, ...) to tiny C++ binary structures (optimized for ESP8266 tiny storage size) 
 	- "Emulates" buffer of monochrome EInk display, for test proper output, can use 1-bit \ 2-bit binary data or images as initial input 
 	
-	Can be used together with glyph & icon editor (https://42volna.ru/tools/glypheditor), to additianaly edit \ tune autoconverted icons and characters.
+	Can be used together with glyph & icon editor (https://42volna.com/tools/glypheditor), to additianaly edit \ tune autoconverted icons and characters.
 	
 	Listed fonts used just as example. Please check actual license of each font before use in commercial projects 
 	
@@ -42,7 +42,7 @@ function KellyEInkConverter() {
     handler.screenBuffer = screenBuffer;
     handler.imageData = imageData;
     
-    var loc;
+    var loc;    
     
     var xbKeys = {'xBefore' : 0, 'xAfter' : 1, 'yBefore' : 2, 'aWidth' : 3, 'aHeight' : 4, 'pByte' : 5, 'pBit' : 6};
     var mergedColorBitMask = {WHITE : [1, 0], BLACK : [1, 1], ALT1 : [0, 0], ALT2 : [0, 1]};
@@ -62,8 +62,39 @@ function KellyEInkConverter() {
     handler.fontsLoaded = [];
 	handler.fontDataModified = false;
 	handler.fontData = false;
-	
-    function showFontGlyphEditor(show, c) {
+    
+	function lloc(n) {
+        return typeof loc[n] == 'undefined' ? n : loc[n];
+    }   
+    
+    function download(txt, fname) {
+        
+        var mime = "application/octet-stream";
+        
+             if (fname.indexOf('.json') != -1) mime = "application/json";
+        else if (fname.indexOf('.txt') != -1) mime = "text/plain";
+        
+        
+        var link = document.createElement("A");
+            link.style.display = 'none';
+            link.onclick = function() {
+            
+                var url = window.URL.createObjectURL(new Blob([txt], {type: mime}));
+                
+                this.href = url;
+                this.download = fname;
+                
+                setTimeout(function() { 
+                    window.URL.revokeObjectURL(url);
+                    link.parentElement.removeChild(link); 
+                }, 4000);            
+            }
+            
+        document.body.appendChild(link);    
+        link.click();
+    }
+
+    function showFontGlyphEditor(show, charIndex) {
         
         showResultBlock(false);
         
@@ -76,29 +107,39 @@ function KellyEInkConverter() {
         
         if (!handler.fontData) return;
         
-        var charIndex = handler.fontData.settings.map.indexOf(c.charCodeAt(0));
-        if (charIndex == -1) {
-            console.log('no symbol ' + c);
-            return;
+        if (charIndex === false) {
+            
+             var xb = [];   
+             var charCode = 0;
+            // new add
+            
+        } else {
+            
+            var xb = handler.fontData.settings.xb[charIndex];   
+            var charCode = handler.fontData.settings.map[charIndex];
+            
+            if (typeof handler.fontData.settings.map[charIndex] == 'undefined') {
+                console.log('no symbol ' + c);
+                return;
+            }
         }
-        
-        var xb = handler.fontData.settings.xb[charIndex];        
+             
         
         console.log(xb);
         var html = '';
         for (var xbKey in xbKeys) {
-            if (xbKey == 'xBefore' || xbKey == 'xAfter' || xbKey == 'yBefore') {
-                html += '<div class="font-editor-glyph-setting"><label>' + loc["xbKeys_" + xbKey] + '</label><input id="glyph-setting-' + xbKey + '" type="text" value="' + xb[xbKeys[xbKey]] + '"></div>';
+            if (charIndex === false) xb[xbKeys[xbKey]] = 0;
+            
+            if (xbKey == 'xBefore' || xbKey == 'xAfter' || xbKey == 'yBefore' || xbKey == 'aWidth' || xbKey == 'aHeight') {
+                html += '<div class="font-editor-glyph-setting"><label>' + lloc("xbKeys_" + xbKey) + '</label><input id="glyph-setting-' + xbKey + '" type="text" value="' + xb[xbKeys[xbKey]] + '"></div>';
             } else {
-				if (xbKey == 'aWidth' || xbKey == 'aHeight') continue;
-                html += '<div class="font-editor-glyph-setting font-editor-glyph-settingread-only"><label>' + loc["xbKeys_" + xbKey] + '</label>' + xb[xbKeys[xbKey]] + '</div>';
+                html += '<div class="font-editor-glyph-setting font-editor-glyph-settingread-only"><label>' + lloc("xbKeys_" + xbKey) + '</label>' + xb[xbKeys[xbKey]] + '</div>';
             }
         }
         
-        html += '<div class="font-gliph-replace-form">';
-        html += '<div class="font-editor-glyph-setting"><label>Новая ширина</label> <input id="font-gliph-replace-width" type="text" value="' + xb[xbKeys['aWidth']] + '"></div>';
-        html += '<div class="font-editor-glyph-setting"><label>Новая высота</label> <input id="font-gliph-replace-height" type="text" value="' + xb[xbKeys['aHeight']] + '"></div>';
-        html += '<div class="font-editor-glyph-setting"><label>Буфер</label><textarea id="font-gliph-replace-data">';
+        html += '<div class="font-gliph-replace-form">';        
+        html += '<div class="font-editor-glyph-setting"><label>' + lloc("glypheditor_g_char_code") + '</label> <input id="font-gliph-replace-char-code" type="text" value="' + charCode + '"></div>';
+        html += '<div class="font-editor-glyph-setting"><label>Буфер (<a href="iconEditor.html" target="_blank">редактор</a>)</label><textarea id="font-gliph-replace-data">';
             
         // Gliph to hex string
         
@@ -133,21 +174,108 @@ function KellyEInkConverter() {
         html += resultHex;
         
         html += '</textarea></div>';
-        html += '<button id="font-gliph-replace-confirm" class="action">Заменить</button>';
+        html += '<button id="font-gliph-replace-confirm" class="action">' + (charIndex === false ? lloc('glypheditor_add') : lloc('glypheditor_replace')) + '</button>';
+        
+        if (charIndex !== false) {
+            html += '<button id="font-gliph-delete-confirm" class="action action-delete">' + lloc('glypheditor_delete') + '</button>';
+        } else {
+            html += '<div class="font-editor-glyph-setting"><label>Добавить перед (код символа)</label> <input id="font-gliph-add-after-char-code" type="text" value=""></div>';
+        }
+        
         html += '</div>';
         editor.innerHTML = html;
         
-        document.getElementById('font-gliph-replace-confirm').onclick = function() {
+        var updateView = function(selectIndex) {
+            
+            handler.showFontDrawGlyphButtons(true);
+            handler.fontDataModified = true;
+            if (selectIndex) document.getElementById('screen-glyphs-glyph-' + selectIndex).click();
+            else showFontGlyphEditor(false);
+            document.getElementById('font-generator-text').onchange();
+        }
         
-            var height = parseInt(document.getElementById('font-gliph-replace-height').value);
-            var width = parseInt(document.getElementById('font-gliph-replace-width').value);
+        if (charIndex !== false) {
+            document.getElementById('font-gliph-delete-confirm').onclick = function() {
+            
+                handler.fontRemoveGlyph(charIndex);
+                updateView(false);
+                handler.print("Символ удален");
+            };
+        }
+        
+        document.getElementById('font-gliph-replace-confirm').onclick = function() {
+            
+            var newItemAdd = charIndex === false;
+            
+            var charCode = parseInt(document.getElementById('font-gliph-replace-char-code').value);
+            var height = parseInt(document.getElementById('glyph-setting-aHeight').value);
+            var width = parseInt(document.getElementById('glyph-setting-aWidth').value);
             
             var xBefore = parseInt(document.getElementById('glyph-setting-xBefore').value);
             var xAfter = parseInt(document.getElementById('glyph-setting-xAfter').value);
             var yBefore = parseInt(document.getElementById('glyph-setting-yBefore').value);
-            
+                        
             if (isNaN(width)) width = 0;
             if (isNaN(height)) height = 0;
+            
+            if (width <= 0 || height <= 0) {
+                handler.print("Не корректные пропорции картинки (длинна или ширина)", true);
+                return;
+            }
+            
+            if (isNaN(charCode)) { 
+                handler.print("Не корректный код символа", true);
+                return;
+            }
+            
+            if (charCode < 0) {
+                handler.print("Укажите код символа", true);
+                return;
+            }
+            
+            var charExistIndex = handler.fontData.settings.map.indexOf(charCode);            
+            if (charExistIndex != -1) {                
+                if (newItemAdd || charExistIndex != charIndex) {
+                    
+                    handler.print("Код символа уже присвоен другой картинке-символу", true);
+                    return;
+                } 
+            }
+            
+            if (newItemAdd) {
+                
+                var addAfterCharCode = parseInt(document.getElementById('font-gliph-add-after-char-code').value);
+                if (isNaN(addAfterCharCode)) addAfterCharCode = -1;
+                
+                var newXb = [];
+                for (var xbKey in xbKeys) {
+                    newXb[xbKeys[xbKey]] = 0;
+                }
+                
+                if (addAfterCharCode > -1) {
+                        
+                    var addAfterIndex = handler.fontData.settings.map.indexOf(addAfterCharCode);
+                    if (addAfterIndex == -1) {
+                            
+                        handler.print("Код символа перед которым надо добавить элемент не найден", true);
+                        return;
+                    }
+
+                    handler.fontData.settings.xb.splice(addAfterIndex, 0, newXb);
+                    handler.fontData.settings.map.splice(addAfterIndex, 0, charCode);
+                    charIndex = handler.fontData.settings.map.indexOf(charCode);
+                    
+                } else {
+                    
+                    handler.fontData.settings.xb.push(newXb);                
+                    handler.fontData.settings.map.push(charCode);
+                
+                    charIndex = handler.fontData.settings.map.length-1;   
+                }
+                
+            } else {
+                handler.fontData.settings.map[charIndex] = charCode;
+            }            
             
             var data = document.getElementById('font-gliph-replace-data').value;
                 data = data.split(',');
@@ -172,78 +300,160 @@ function KellyEInkConverter() {
             // console.log(binData);
             // console.log(requiredLength);
             
-            if (handler.fontUpdateGlyph(charIndex, width, height, binData, xBefore, xAfter, yBefore)) {
-                handler.showFontDrawGlyphButtons(true);
-				handler.fontDataModified = true;
-                handler.print("Шрифт обновлен. Измените тестовый текст для проверки");
-                
-                document.getElementById('font-generator-text').onchange();
-            } else {
-				
-                handler.print("Ошибка ввода данных");
-            }
-            
-        }
+            handler.fontUpdateGlyph(charIndex, width, height, binData, xBefore, xAfter, yBefore);
+            updateView(charIndex);
+            handler.print("Шрифт обновлен. Измените тестовый текст для проверки");
+        };
     }
     
-    function showResultBlock(result) {
+    function showResultBlock(result, fname) {
 
         var textBlock = document.getElementById('screen-output-result-data');  
+        if (!textBlock) return;
+        
+        var downloadEl = document.getElementById('screen-output-result-download');
+        if (downloadEl) {
+            if (fname) {
+                downloadEl.style.display = '';
+                downloadEl.onclick = function() {
+                    download(result, fname);
+                }
+            } else {
+                downloadEl.style.display = 'none';
+            }
+        }
         
         if (result) {
             textBlock.classList.add('show');
             textBlock.value = result;
         } else textBlock.classList.remove('show');
+        
         updateCppButtons();
     }
     
     handler.setMonitors = function(list) { monitors = list;  monitor = list[0]; }
     handler.setLocale = function(locData) { loc = locData; if (locData['default_letters']) defaultLetterSet = locData['default_letters']; }
 	
+    function pushBitFontUpdater(cursorScroller, newValue) {
+        
+        cursorScroller.glyphBits += newValue ? "1" : "0";
+        if (cursorScroller.glyphBits.length == 8) {
+                        
+            var glyphByte = parseInt(cursorScroller.glyphBits, 2);
+            cursorScroller.newBin.push(glyphByte);                            
+            cursorScroller.glyphBits = '';
+        }  
+    
+        cursorScroller.newBitN++; cursorScroller.oldBitN++;
+        
+        if (cursorScroller.oldBitN > 7) {
+            cursorScroller.oldByteN++;
+            cursorScroller.oldBitN = 0;                            
+        }  
+        
+        if (cursorScroller.newBitN > 7) {
+            cursorScroller.newByteN++;
+            cursorScroller.newBitN = 0;                            
+        }
+    };
+    
+    // used only in JS version, for output charlist, all charcodes placed in handler.fontData.settings.map
+    
+    function updateFontTextMap() {        
+        var textMap = "";        
+        for (var i = 0; i < handler.fontData.settings.map.length; i++) {
+            textMap += String.fromCharCode(handler.fontData.settings.map[i]);
+        }
+        
+        handler.fontData.settings.textMap = textMap;
+    }
+    
+    handler.fontRemoveGlyph = function(removeCharIndex) {
+        
+        var cursorScroller = {
+            
+            // double cursor scroller for old buffer position and new
+            newByteN : 0,
+            newBitN : 0,
+
+            oldByteN : -1, // reseted every next glyph in .map
+            oldBitN : -1,  // reseted every next glyph in .map
+            
+            // filled array
+            glyphBits : '',            
+            newBin : [],
+        };
+        
+        for (var i = 0; i < handler.fontData.settings.map.length; i++) {
+            
+            if (i == removeCharIndex) continue;
+            
+            var xb = handler.fontData.settings.xb[i];
+            
+            cursorScroller.oldByteN = xb[xbKeys['pByte']];
+            cursorScroller.oldBitN = xb[xbKeys['pBit']];
+            
+            xb[xbKeys['pByte']] = cursorScroller.newByteN;
+            xb[xbKeys['pBit']] = cursorScroller.newBitN;
+            
+            var width = xb[xbKeys['aWidth']];
+            var height = xb[xbKeys['aHeight']];
+            
+            for (var glyphY = 1; glyphY <= height; glyphY++) {        
+                for (var glyphX = 1; glyphX <= width; glyphX++) {                    
+                    pushBitFontUpdater(cursorScroller, getBit(handler.fontData.font[cursorScroller.oldByteN], cursorScroller.oldBitN));                    
+                }
+            }
+        }
+        
+        if (cursorScroller.glyphBits.length) {
+            for (var x = 8 - cursorScroller.glyphBits.length; x > 0; x--) pushBitFontUpdater(cursorScroller, false);
+        }
+        
+        handler.fontData.font = cursorScroller.newBin;
+        handler.fontData.settings.map.splice(removeCharIndex, 1);
+        handler.fontData.settings.xb.splice(removeCharIndex, 1);
+        updateFontTextMap();
+        
+        return true;
+    }
+    
+    /*
+        update glyph item in current font, handler.fontData - must be created \ loaded before execute
+        
+        newWidth - binary array width
+        newHeight - binary array height
+        newData - glyph icon binary array 
+    */
     handler.fontUpdateGlyph = function(updCharIndex, newWidth, newHeight, newData, xBefore, xAfter, yBefore) {
         
+     
         if (newWidth <= 0 || newHeight <= 0) return false;
-        if (!newData || newData.length <= 0) newData = [];
+        if (!newData || newData.length <= 0) newData = []; 
         
-        var newBin = [];
-        var newByteN = 0;
-        var newBitN = 0;
-        
-        var oldByteN = -1;
-        var oldBitN = -1;
-        var glyphBits = '';
-        
-        var pushBit = function(newValue) {
-            glyphBits += newValue ? "1" : "0";
-            if (glyphBits.length == 8) {
-                            
-                var glyphByte = parseInt(glyphBits, 2);
-                newBin.push(glyphByte);                            
-                glyphBits = '';
-            }  
-        
-            newBitN++; oldBitN++;
+        var cursorScroller = {
             
-            if (oldBitN > 7) {
-                oldByteN++;
-                oldBitN = 0;                            
-            }  
+            // double cursor scroller for old buffer position and new
+            newByteN : 0,
+            newBitN : 0,
+
+            oldByteN : -1, // reseted every next glyph in .map
+            oldBitN : -1,  // reseted every next glyph in .map
             
-            if (newBitN > 7) {
-                newByteN++;
-                newBitN = 0;                            
-            }  
-        }
+            // filled array
+            glyphBits : '',            
+            newBin : [],
+        };
         
         for (var i = 0; i < handler.fontData.settings.map.length; i++) {
             
             var xb = handler.fontData.settings.xb[i];
             
-            var oldByteN = i != updCharIndex ? xb[xbKeys['pByte']] : 0;
-            var oldBitN = i != updCharIndex ? xb[xbKeys['pBit']] : 0;
+            cursorScroller.oldByteN = i != updCharIndex ? xb[xbKeys['pByte']] : 0;
+            cursorScroller.oldBitN = i != updCharIndex ? xb[xbKeys['pBit']] : 0;
             
-                xb[xbKeys['pByte']] = newByteN;
-                xb[xbKeys['pBit']] = newBitN;
+                xb[xbKeys['pByte']] = cursorScroller.newByteN;
+                xb[xbKeys['pBit']] = cursorScroller.newBitN;
                 
             var width = i != updCharIndex ? xb[xbKeys['aWidth']] : newWidth;
             var height = i != updCharIndex ? xb[xbKeys['aHeight']] : newHeight;
@@ -259,21 +469,23 @@ function KellyEInkConverter() {
         
                 for (var glyphX = 1; glyphX <= width; glyphX++) {
                     if (i == updCharIndex) {
-                        if (newData.length-1 < oldByteN) pushBit(false);
-                        else pushBit(getBit(newData[oldByteN], oldBitN));
+                        if (newData.length-1 < cursorScroller.oldByteN) pushBitFontUpdater(cursorScroller, false);
+                        else pushBitFontUpdater(cursorScroller, getBit(newData[cursorScroller.oldByteN], cursorScroller.oldBitN));
                     } else {
-                        pushBit(getBit(handler.fontData.font[oldByteN], oldBitN));
+                        pushBitFontUpdater(cursorScroller, getBit(handler.fontData.font[cursorScroller.oldByteN], cursorScroller.oldBitN));
                     }
                     
                 }
             }
         }
         
-        if (glyphBits.length) {
-            for (var x = 8 - glyphBits.length; x > 0; x--) pushBit(false);
+        if (cursorScroller.glyphBits.length) {
+            for (var x = 8 - cursorScroller.glyphBits.length; x > 0; x--) pushBitFontUpdater(cursorScroller, false);
         }
         
-        handler.fontData.font = newBin;
+        handler.fontData.font = cursorScroller.newBin;
+        updateFontTextMap();
+        
         return true;
     }
     
@@ -527,7 +739,7 @@ function KellyEInkConverter() {
         return imageData;
     }
     
-    /* not implemented for merged mode */
+    /* not implemented for merged mode, and not planned, all 2-bit edits will be nativly supported in Volna web-panel */
     
     function resetImageBuffer(sX, sY, fw, fh) {
         
@@ -664,7 +876,7 @@ function KellyEInkConverter() {
 	function initCopyright() {
 
 		var block = document.createElement('div');
-			block.innerHTML = '<a href="https://nradiowave.ru/dev/" target="_blank">nradiowave</a>&nbsp(проект - <a href="https://42volna.ru/?kellyc=1" target="_blank">Волна 42</a>)&nbsp&nbsp©&nbsp&nbsp' + new Date().getFullYear();
+			block.innerHTML = '<a href="https://nradiowave.ru/dev/" target="_blank">nradiowave</a>&nbsp(проект - <a href="https://42volna.com/?kellyc=1" target="_blank">Волна 42</a>)&nbsp&nbsp©&nbsp&nbsp' + new Date().getFullYear();
 			block.classList.add('copyright');
 			document.body.appendChild(block);
 	}
@@ -1392,7 +1604,7 @@ function KellyEInkConverter() {
         
                 var index = fontSettings.map.indexOf(text[i].charCodeAt(0));
                 if (index === -1) {
-                    console.error('UNKNOWN CHAR : '  + text[i]);
+                    console.error('UNKNOWN CHAR : '  + text[i] + ' | CHAR CODE :' + text[i].charCodeAt(0));
                     continue;
                 }
              
@@ -1451,6 +1663,11 @@ function KellyEInkConverter() {
             
         var settings = handler.fontData.settings;
         
+        var deselectAll = function() {
+            var glyphSelectors = ct.getElementsByClassName('screen-glyphs-glyph');
+            for (var i = 0; i < glyphSelectors.length; i++) glyphSelectors[i].classList.remove('active');                
+        }
+                
         for (var i = 0; i < handler.fontData.settings.map.length; i++) {
             
             var charIndex = settings.map[i];
@@ -1510,21 +1727,32 @@ function KellyEInkConverter() {
             helperCtx.clearRect(0, 0, helper.width, helper.height);             
             helperCtx.putImageData( pixelsHardwareFont, 0, 0 );      
             
-            var image = document.getElementById('font-editor-glyph-icon-' + charIndex);
-            if (!image) {
-                image = document.createElement('IMG');
-                ct.appendChild(image);  
-            }
-            
-            image.src = helper.toDataURL();
-            image.setAttribute('data-c', settings.textMap[i]);
-            image.onclick = function() {                
-                // screenInit(monitor.width, monitor.height);
-                // handler.drawString(20, 20, this.getAttribute('data-c'), handler.fontData, true);
-                // screenUpdate();
-                showFontGlyphEditor(true, this.getAttribute('data-c'));
-            }
+            var image = document.createElement('IMG');
+                image.className = 'screen-glyphs-glyph'; 
+                image.id = 'screen-glyphs-glyph-' + i;
+                image.src = helper.toDataURL();
+                image.setAttribute('data-map-index', i);
+                image.onclick = function() {                
+                    // screenInit(monitor.width, monitor.height);
+                    // handler.drawString(20, 20, this.getAttribute('data-c'), handler.fontData, true);
+                    // screenUpdate();
+                    deselectAll();
+                    showFontGlyphEditor(true, parseInt(this.getAttribute('data-map-index')));
+                    this.classList.add('active')
+                }
+                
+            ct.appendChild(image);  
         }
+        
+        var addNew = document.createElement('BUTTON');
+            addNew.innerText = '+';
+            addNew.className = 'screen-glyphs-add screen-glyphs-glyph';
+            addNew.onclick = function() {       
+                deselectAll();
+                showFontGlyphEditor(true, false);
+                this.classList.add('active')
+            }
+            ct.appendChild(addNew);    
     }
     
 	handler.fontGeneratorUpdatePreviewText = function() {
@@ -1551,7 +1779,12 @@ function KellyEInkConverter() {
         var map = [];
         
         for (var i = 0; i < textMap.length; i++) {
-            map.push(textMap[i].charCodeAt(0));
+            var charCode = textMap[i].charCodeAt(0);
+            if (map.indexOf(charCode) != -1) {
+                console.log('skipped double char in textMap : ' + textMap[i]);
+            } else {
+                map.push(charCode);
+            }
         }
                  
         var canvas = document.createElement('canvas');
@@ -1708,6 +1941,8 @@ function KellyEInkConverter() {
         log.innerText = 'text file bytes : ' + fontBytes.length + ' | font raw bytes : ' + ((size * size * fontData.settings.map.length) / 8) + ' | pack bytes : ' + (fontData.font.length);
             
         handler.fontData = fontData;
+        updateFontTextMap();
+        
         handler.fontGeneratorUpdatePreviewText();
         
         handler.showFontDrawGlyphButtons(true);
@@ -1968,7 +2203,7 @@ function KellyEInkConverter() {
                 showFontGlyphEditor(false);
                 handler.showFontDrawGlyphButtons(false);
                 
-                showResultBlock(getFontTextCommentInfo() + '// [JSON-FONT]' + '\r\n' + JSON.stringify(handler.fontData));
+                showResultBlock(getFontTextCommentInfo() + '// [JSON-FONT]' + '\r\n' + JSON.stringify(handler.fontData), handler.fontData.name + '_' + handler.fontData.settings.w + 'x' + handler.fontData.settings.h + '.json');
         }
                  
         document.getElementById('font-to-cpp').onclick = function() {
@@ -2068,7 +2303,7 @@ function KellyEInkConverter() {
                 text += '   (glyphSettings *) ' + fontName + 'GlyphSettings' + ',' + '\r\n';
                 text += '};';
                 
-                showResultBlock(text);
+                showResultBlock(text, handler.fontData.name + '_' + handler.fontData.settings.w + 'x' + handler.fontData.settings.h + '.h');
         }
         
 		
@@ -2227,32 +2462,18 @@ function KellyEInkConverter() {
                }
                
                 result = header + result;
-                showResultBlock(result);
+                showResultBlock(result, (imageData[0].settings.name ? imageData[0].settings.name.split('.')[0] : 'default') + '_' + imageData[0].settings.w +'x' + imageData[0].settings.h + '_' + 'bw' + '.h');
         }
         
         document.getElementById('image-to-cpp').onclick = screenBufferToCpp;
         document.getElementById('image-to-bin').onclick = function() {
-        
+
             showFontGlyphEditor(false);
             handler.showFontDrawGlyphButtons(false);
-            
-            var link = document.createElement("A");
-                link.style.display = 'none';
-                link.onclick = function() {
-                
-                    var url = window.URL.createObjectURL(new Blob([bufferToBin(screenBuffer[0], imageData[0].settings)], {type: "application/octet-stream"}));
-                    
-                    this.href = url;
-                    this.download = (imageData[0].settings.name ? imageData[0].settings.name.split('.')[0] : 'default') + '_' + imageData[0].settings.w +'x' + imageData[0].settings.h + '_' + 'bw' + '.bin';
-                    
-                    setTimeout(function() { 
-                        window.URL.revokeObjectURL(url);
-                        link.parentElement.removeChild(link); 
-                    }, 4000);            
-                }
-                
-            document.body.appendChild(link);    
-            link.click();
+            download(
+                bufferToBin(screenBuffer[0], imageData[0].settings), 
+                (imageData[0].settings.name ? imageData[0].settings.name.split('.')[0] : 'default') + '_' + imageData[0].settings.w +'x' + imageData[0].settings.h + '_' + 'bw' + '.bin'
+            );
         };
         
         document.getElementById('screen-to-cpp').onclick = function() {

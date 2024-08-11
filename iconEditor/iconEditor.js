@@ -7,7 +7,7 @@
    @license        GPLv3
    @version        v 1.0.0 18.07.24
     
-    Part of Volna 42 project  | Actual version of tool can be found here https://42volna.ru/tools/fontconverter
+    Part of Volna 42 project  | Actual version of tool can be found here https://42volna.com/tools/fontconverter
     
     - Flexible canvas for manual edit small 1-bit icons
     - Converts & reads images to 1-bit binary format
@@ -413,7 +413,7 @@ var imageConverter = new Object();
 	imageConverter.initCopyright = function() {
 
 		var block = document.createElement('div');
-			block.innerHTML = '<a href="https://nradiowave.ru/dev/" target="_blank">nradiowave</a>&nbsp(проект - <a href="https://42volna.ru/?kellyc=1" target="_blank">Волна 42</a>)&nbsp&nbsp©&nbsp&nbsp' + new Date().getFullYear();
+			block.innerHTML = '<a href="https://nradiowave.ru/dev/" target="_blank">nradiowave</a>&nbsp(проект - <a href="https://42volna.com/?kellyc=1" target="_blank">Волна 42</a>)&nbsp&nbsp©&nbsp&nbsp' + new Date().getFullYear();
 			block.classList.add('copyright');
 			document.body.appendChild(block);
 	}
