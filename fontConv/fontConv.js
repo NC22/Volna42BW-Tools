@@ -7,12 +7,12 @@
    @license        GPLv3
    @version        v 0.82 11.08.24
 	
-	Part of Volna 42 project  | Actual version of tool can be found here https://42volna.com/tools/fontconverter
+	Part of Volna 42 project  | Actual version of tool can be found here https://volna42.com/tools/fontconverter
 	
 	- Converts fonts (ttf, woff, woff2, ...) to tiny C++ binary structures (optimized for ESP8266 tiny storage size) 
 	- "Emulates" buffer of monochrome EInk display, for test proper output, can use 1-bit \ 2-bit binary data or images as initial input 
 	
-	Can be used together with glyph & icon editor (https://42volna.com/tools/glypheditor), to additianaly edit \ tune autoconverted icons and characters.
+	Can be used together with glyph & icon editor (https://volna42.com/tools/glypheditor), to additianaly edit \ tune autoconverted icons and characters.
 	
 	Listed fonts used just as example. Please check actual license of each font before use in commercial projects 
 	
@@ -876,7 +876,7 @@ function KellyEInkConverter() {
 	function initCopyright() {
 
 		var block = document.createElement('div');
-			block.innerHTML = '<a href="https://nradiowave.ru/dev/" target="_blank">nradiowave</a>&nbsp(проект - <a href="https://42volna.com/?kellyc=1" target="_blank">Волна 42</a>)&nbsp&nbsp©&nbsp&nbsp' + new Date().getFullYear();
+			block.innerHTML = '<a href="https://nradiowave.ru/dev/" target="_blank">nradiowave</a>&nbsp(проект - <a href="https://volna42.com/?kellyc=1" target="_blank">Волна 42</a>)&nbsp&nbsp©&nbsp&nbsp' + new Date().getFullYear();
 			block.classList.add('copyright');
 			document.body.appendChild(block);
 	}

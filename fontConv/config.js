@@ -30,7 +30,7 @@ window.ENV = {
     ],
     
     monitors : [
-        {key : '4in2', width : 400, height : 300, colors : {WHITE : '#c3ccd0', BLACK : '#0d0f10', ALT1 : '#ff4243'}, bufferType : 'separate'},
+        {key : '4in2', width : 400, height : 300, colors : {WHITE : '#fff', BLACK : '#0d0f10', ALT1 : '#ff4243'}, bufferType : 'separate'},
         {key : '2in36', width : 256, height : 168, colors : {WHITE : '#c3ccd0', BLACK : '#0d0f10', ALT1 : '#ff4243', ALT2 : '#f5d534'}, bufferType : 'merged', bitPerPixel : 2},
         {key : '1in54', width : 200, height : 200, colors : {WHITE : '#c3ccd0', BLACK : '#0d0f10', ALT1 : '#ff4243'}, bufferType : 'separate'},
         {key : '2in13', width : 250, height : 122, colors : {WHITE : '#c3ccd0', BLACK : '#0d0f10', ALT1 : '#ff4243'}, bufferType : 'separate'}, // в демках картинка больше - 256 х 122, возможно ошибка парсинга - добавляет лишние байты

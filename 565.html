@@ -1,0 +1,265 @@
+<!-- 
+
+	by nradiowave
+	
+	Part of Volna 42 project 
+-->
+
+<html>
+
+<head>
+<link href="common/style.css" rel="stylesheet">
+<link href="iconEditor/style.css" rel="stylesheet">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+
+</head>
+
+<body>
+<div class="app-wrap">
+
+<div class="app-header">
+	<b id="app-name"></b> <b id="app-version"></b>
+</div>
+
+<div class="app-body">
+
+<div id="buttons" class="buttons">
+    
+    <!-- Bitmap editor -->
+     
+    <div id="image-from-file-form">
+        
+        <p>Выберите картинку : <input type="file" id="image"> </p>
+        
+        <button id="image-refresh" class="action">TO RGB565</button>
+    </div>
+    <div id="notice">
+    </div>
+</div>
+
+<div class="screen-wrap">
+   
+    <div id="screen">
+        <canvas id="render"></canvas>
+    </div>
+    <div id="screen-output">
+        
+    </div>
+</div>
+
+<div style="clear : both;"></div>
+
+</div>
+
+<script> 
+var imageConverter = new Object();
+    imageConverter.screen = document.getElementById('screen');
+    imageConverter.notice = document.getElementById('notice');
+    
+    imageConverter.canvas = document.createElement('canvas');
+    imageConverter.ctx = imageConverter.canvas.getContext('2d');
+    
+    imageConverter.screenBuffer = [];
+    imageConverter.hMax = 600;
+    imageConverter.wMax = 600;
+        
+    imageConverter.print = function(text) {
+        imageConverter.notice.innerText = text;
+    }
+    
+    imageConverter.showOutput = function() {
+        var html = "<textarea>";
+        
+        html += 'uint16_t image' + imageConverter.screenWidth + 'x' + imageConverter.screenHeight + '[' + ( imageConverter.screenWidth * imageConverter.screenHeight)+ '] = "';
+        html += "\r\n";
+        html += imageConverter.bufferToText(imageConverter.screenBuffer, imageConverter.screenWidth, imageConverter.screenHeight);
+        html += "\r\n";
+        html += '";';
+        html += '</textarea>';
+        document.getElementById('screen-output').innerHTML = html;
+    }
+    
+    imageConverter.initScreen = function(w, h) {
+
+        imageConverter.screenBuffer = [];
+        imageConverter.screenWidth = w;
+        imageConverter.screenHeight = h;
+        for (var y = 0; y < h; y++) {
+            imageConverter.screenBuffer[y] = [];
+        } 
+    }
+    
+    imageConverter.bufferToText = function(buffer, width, height) {
+         
+        var bits = '';  
+        var byteData = '';
+        /*
+        for(var y = 0; y < height; y++) {
+                        
+            for(var x = 0; x < width; x++) {
+          //      byteData += '0x' + buffer[y][x].toString(16).toUpperCase() + ', ';                                                            
+            }    
+        }
+        */
+        
+        var t = 1;
+        for(var y = 0; y <  imageConverter.screenHeight * imageConverter.screenWidth; y++) {
+             byteData += '0x' + buffer[y].toString(16).toUpperCase() + ', ';   
+             t += 1;
+             
+             if (t > 20) {
+                byteData += "\r\n";
+                t = 1;
+             } else t++;
+             
+        }
+        return byteData;
+    }
+     
+    imageConverter.getCanvasCursor = function(x, y, width) {
+        return (((y - 1) * width) + x - 1) * 4;
+    }
+    
+    imageConverter.renderBuffer = function() {
+        
+        var pixelData = imageConverter.ctx.getImageData(0, 0, imageConverter.screenWidth, imageConverter.screenHeight);
+        var i = 0;
+        /*
+        for (var bufferY = 0; bufferY < imageConverter.screenHeight; bufferY++) {
+              
+              for (var bufferX = 0; bufferX < imageConverter.screenWidth; bufferX++) {
+                    var rgb888 = imageConverter.rgb565to888(imageConverter.screenBuffer[bufferX][bufferY]);
+                    // var g = imageConverter.getCanvasCursor(bufferX, bufferY, imageConverter.screenWidth);
+                    
+                    pixelData.data[i + 0] = rgb888[0];
+                    pixelData.data[i + 1] = rgb888[1];
+                    pixelData.data[i + 2] = rgb888[2];   
+                    pixelData.data[i + 3] = 255;
+                    i += 4;
+              }
+              
+        }
+        */
+        
+        for(var y = 0; y <  imageConverter.screenHeight * imageConverter.screenWidth; y++) {
+        
+             var rgb888 = imageConverter.rgb565to888(imageConverter.screenBuffer[y]);            
+            pixelData.data[i + 0] = rgb888[0];
+            pixelData.data[i + 1] = rgb888[1];
+            pixelData.data[i + 2] = rgb888[2];   
+            pixelData.data[i + 3] = 255;     
+            i += 4;    
+        }
+        
+        console.log(pixelData);
+        
+        var canvas = document.getElementById('render');
+        var ctx = canvas.getContext('2d');
+    
+        ctx.clearRect(0, 0, imageConverter.screenWidth, imageConverter.screenHeight);
+        ctx.putImageData(pixelData, 0, 0 ); 
+    }
+    
+    imageConverter.rgb888to565 = function(rgb888Pixel) {
+    
+        var red   = rgb888Pixel[0];
+        var green = rgb888Pixel[1];
+        var blue  = rgb888Pixel[2];
+
+        var b = (blue >> 3) & 0x1f;
+        var g = ((green >> 2) & 0x3f) << 5;
+        var r = ((red >> 3) & 0x1f) << 11;
+
+        return r | g | b;
+    }
+    
+    imageConverter.rgb565to888 = function(rgb565Pixel) {
+        
+        var r = (rgb565Pixel >> 11) & 0x1F;  
+        var g = (rgb565Pixel >> 5) & 0x3F;   
+        var b = rgb565Pixel & 0x1F;          
+
+        var red   = (r << 3) | (r >> 2);     // Сдвиг на 3 и добавление младших битов
+        var green = (g << 2) | (g >> 4);     // Сдвиг на 2 и добавление младших битов
+        var blue  = (b << 3) | (b >> 2);     // Сдвиг на 3 и добавление младших битов
+
+        return [red, green, blue];
+    }
+
+    imageConverter.renderFileInput = function() {
+
+        var file = document.getElementById('image');
+        if (file.files.length <= 0) {
+            return imageConverter.print('Файл не выбран');
+        }
+        
+        var reader = new FileReader();
+            reader.addEventListener("loadend", function(arg) {
+            
+                  var src = new Image();
+                      src.onload = function() {
+                        
+                        if (imageConverter.hMax !== false && src.height > imageConverter.hMax) {
+                            return imageConverter.print('Высота картинки больше ' + imageConverter.hMax + 'px - ' + src.height + 'px');
+                        }
+                        
+                        if (imageConverter.wMax !== false && src.width > imageConverter.wMax) {
+                            return imageConverter.print('Ширина картинки больше ' + imageConverter.wMax + 'px - ' + src.width + 'px');
+                        }
+
+                        imageConverter.initScreen(src.width, src.height);                        
+                        imageConverter.canvas.width = src.width;                
+                        imageConverter.canvas.height = src.height;
+                        imageConverter.ctx.drawImage(src, 0, 0);       
+
+                        console.log(   src.width + ' ' + src.height);                  
+
+                        var pixels = imageConverter.ctx.getImageData(0, 0, imageConverter.canvas.width, imageConverter.canvas.height);                                        
+                        var i = 0;
+                        
+                        for(var y = 0; y <  imageConverter.screenHeight * imageConverter.screenWidth; y++) {
+                        
+                            var r565;      
+                            if (pixels.data[i + 3] <= 128) r565 = imageConverter.rgb888to565([0, 0, 0]);
+                            else {
+                                r565 = imageConverter.rgb888to565([pixels.data[i + 0], pixels.data[i + 1], pixels.data[i + 2]]);                            
+                            }
+                            
+                            imageConverter.screenBuffer[y] = r565;      
+                            i += 4;    
+                        }
+                        
+                        /*
+
+                        for(var y = 0; y <  imageConverter.screenHeight; y++) {
+
+                            for(var x = 0; x <  imageConverter.screenWidth; x++) {
+                                
+                                var r565;
+                                var g = imageConverter.getCanvasCursor(x, y, imageConverter.screenWidth);
+                    
+                                if (pixels.data[i + 3] <= 128) r565 = imageConverter.rgb888to565([0, 0, 0]);
+                                else {
+                                    r565 = imageConverter.rgb888to565([pixels.data[i + 0], pixels.data[i + 1], pixels.data[i + 2]]);
+                                }
+                                imageConverter.screenBuffer[y][x] = r565;                                
+                                i += 4;
+                            }    
+                        }
+                        */
+                        imageConverter.renderBuffer();
+                        imageConverter.showOutput();
+                      }
+                      
+                      src.src = this.result;
+            });
+
+            reader.readAsDataURL(file.files[0]);
+    }
+    
+    document.getElementById('image-refresh').onclick = imageConverter.renderFileInput;
+    
+</script>
+
+</body>
+</html>
