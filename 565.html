@@ -11,6 +11,23 @@
 <link href="common/style.css" rel="stylesheet">
 <link href="iconEditor/style.css" rel="stylesheet">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
+<style>
+    #converter-565-output {
+        margin-top : 12px;
+    }
+    
+    .color {
+        display: inline-block;
+        text-align: center;
+    }
+    
+    .color-item {
+        width: 90px;
+        height: 90px;
+        border: 2px solid;
+        margin-right: 4px;
+    }
+</style>
 
 </head>
 
@@ -29,9 +46,18 @@
      
     <div id="image-from-file-form">
         
+        <p>Преобразовать картинку в RGB565 массив</p>
+        
         <p>Выберите картинку : <input type="file" id="image"> </p>
         
         <button id="image-refresh" class="action">TO RGB565</button>
+    </div>
+    <div id="image-from-file-form">
+        
+        <p>Вывести цвет из HEX данных (RGB565) : <input type="text" value="0x7FFF, 0x5AD6, 0x318C, 0x0000" id="converter-565-input"></p>
+        
+        <button id="converter-565-output-refresh" class="action">Вывести</button>
+        <div id="converter-565-output"></div>
     </div>
     <div id="notice">
     </div>
@@ -77,6 +103,38 @@ var imageConverter = new Object();
         html += '";';
         html += '</textarea>';
         document.getElementById('screen-output').innerHTML = html;
+    }
+    
+   imageConverter.rgbToHex = function(color) {
+        var componentToHex = function (c) {
+            var hex = c.toString(16);
+            return hex.length === 1 ? "0" + hex : hex;
+        };
+
+        return "#" + componentToHex(color[0]) + componentToHex(color[1]) + componentToHex(color[2]);
+    }
+    
+    imageConverter.update565ConvereterOut = function() {
+        var inputEl = document.getElementById('converter-565-input');
+        var value = inputEl.value.split(',');
+        var html = "";
+        console.log('update565ConvereterOut, found :  ' + value.length);
+        for (var i = 0; i < value.length; i++) {
+            var color = value[i].trim();
+            if (color.length > 0) {
+                color = parseInt(color);
+                if (isNaN(color)) {
+                    console.log('Bad color input ' + value[i]);
+                    continue;
+                }
+                
+                var rgb = imageConverter.rgb565to888(color);
+                html += '<div class="color"><div class="color-item" style="background-color : rgb(' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ');">';
+                html += '</div><div>' + imageConverter.rgbToHex(rgb) + '<br>' + '[' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ']</div></div>';
+            }
+        }
+        
+        document.getElementById('converter-565-output').innerHTML = html;
     }
     
     imageConverter.initScreen = function(w, h) {
@@ -258,7 +316,7 @@ var imageConverter = new Object();
     }
     
     document.getElementById('image-refresh').onclick = imageConverter.renderFileInput;
-    
+    document.getElementById('converter-565-output-refresh').onclick = imageConverter.update565ConvereterOut;
 </script>
 
 </body>
