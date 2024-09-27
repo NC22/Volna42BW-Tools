@@ -96,11 +96,11 @@ var imageConverter = new Object();
     imageConverter.showOutput = function() {
         var html = "<textarea>";
         
-        html += 'uint16_t image' + imageConverter.screenWidth + 'x' + imageConverter.screenHeight + '[' + ( imageConverter.screenWidth * imageConverter.screenHeight)+ '] = "';
+        html += 'uint16_t image' + imageConverter.screenWidth + 'x' + imageConverter.screenHeight + '[' + ( imageConverter.screenWidth * imageConverter.screenHeight)+ '] = {';
         html += "\r\n";
         html += imageConverter.bufferToText(imageConverter.screenBuffer, imageConverter.screenWidth, imageConverter.screenHeight);
         html += "\r\n";
-        html += '";';
+        html += '};';
         html += '</textarea>';
         document.getElementById('screen-output').innerHTML = html;
     }
