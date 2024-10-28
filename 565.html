@@ -52,12 +52,20 @@
         
         <button id="image-refresh" class="action">TO RGB565</button>
     </div>
-    <div id="image-from-file-form">
+    <div> <label><input type="checkbox" id="invert-565" checked> Инвертировать байты - little-endian (<b>для PROGMEM отключить - pgm_read_word читает в другом порядке</b>) </label></div>
+    <div id="image-from-file-form-2">
         
         <p>Вывести цвет из HEX данных (RGB565) : <input type="text" value="0x7FFF, 0x5AD6, 0x318C, 0x0000" id="converter-565-input"></p>
         
         <button id="converter-565-output-refresh" class="action">Вывести</button>
         <div id="converter-565-output"></div>
+    </div>
+    <div id="image-from-file-form-3">
+        
+        <p>RGB888 to RGB565 : <input type="text" value="255, 255, 255" id="converter-888-input"></p>
+        
+        <button id="converter-888-output-refresh" class="action">Вывести</button>
+        <div id="converter-888-output"></div>
     </div>
     <div id="notice">
     </div>
@@ -79,6 +87,11 @@
 
 <script> 
 var imageConverter = new Object();
+
+    imageConverter.inverseBytes = function() {    
+        return document.getElementById('invert-565').checked ? true : false;
+    }
+    
     imageConverter.screen = document.getElementById('screen');
     imageConverter.notice = document.getElementById('notice');
     
@@ -228,10 +241,16 @@ var imageConverter = new Object();
         var g = ((green >> 2) & 0x3f) << 5;
         var r = ((red >> 3) & 0x1f) << 11;
 
-        return r | g | b;
+        var rgb =  r | g | b;
+        if (imageConverter.inverseBytes()) rgb = ((rgb & 0x00FF) << 8) | ((rgb & 0xFF00) >> 8);
+        return rgb;
     }
     
     imageConverter.rgb565to888 = function(rgb565Pixel) {
+    
+        if (imageConverter.inverseBytes()) {
+            rgb565Pixel =  ((rgb565Pixel & 0x00FF) << 8) | ((rgb565Pixel & 0xFF00) >> 8);
+        }
         
         var r = (rgb565Pixel >> 11) & 0x1F;  
         var g = (rgb565Pixel >> 5) & 0x3F;   
@@ -240,7 +259,9 @@ var imageConverter = new Object();
         var red   = (r << 3) | (r >> 2);     // Сдвиг на 3 и добавление младших битов
         var green = (g << 2) | (g >> 4);     // Сдвиг на 2 и добавление младших битов
         var blue  = (b << 3) | (b >> 2);     // Сдвиг на 3 и добавление младших битов
-
+        
+        var rgb =  r | g | b;
+        
         return [red, green, blue];
     }
 
@@ -317,6 +338,11 @@ var imageConverter = new Object();
     
     document.getElementById('image-refresh').onclick = imageConverter.renderFileInput;
     document.getElementById('converter-565-output-refresh').onclick = imageConverter.update565ConvereterOut;
+    document.getElementById('converter-888-output-refresh').onclick = function() {
+        var value = document.getElementById('converter-888-input').value;
+            value = value.split(',');
+        document.getElementById('converter-888-output').innerText = imageConverter.rgb888to565([parseInt(value[0]), parseInt(value[1]), parseInt(value[2])]).toString(16).toUpperCase();
+    };
 </script>
 
 </body>

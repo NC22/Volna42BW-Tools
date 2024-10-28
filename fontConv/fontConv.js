@@ -1667,6 +1667,8 @@ function KellyEInkConverter() {
             var glyphSelectors = ct.getElementsByClassName('screen-glyphs-glyph');
             for (var i = 0; i < glyphSelectors.length; i++) glyphSelectors[i].classList.remove('active');                
         }
+        
+        // Draw glyph preview
                 
         for (var i = 0; i < handler.fontData.settings.map.length; i++) {
             
@@ -1686,7 +1688,10 @@ function KellyEInkConverter() {
                                 
                         var show = getBit(handler.fontData.font[byteN], bitCursor) ? true : false;
                         
-                        var g = getCanvasCursor(glyphX, settings.h - xb[xbKeys['aHeight']] + glyphY, helper);    
+                        var rY = settings.h - xb[xbKeys['aHeight']] + glyphY;
+                        if (xb[xbKeys['yBefore']] < 0) rY += xb[xbKeys['yBefore']];
+                        
+                        var g = getCanvasCursor(glyphX, rY, helper);    
                         var color = show ? {r : 0, g : 0, b : 0} : {r : 255, g : 255, b : 255};
                         
                         pixelsHardwareFont.data[g + 0] = color.r;
