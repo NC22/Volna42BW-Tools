@@ -48,7 +48,7 @@
         
         <p>Преобразовать картинку в RGB565 массив</p>
         
-        <p>Выберите картинку : <input type="file" id="image"> </p>
+        <p>Выберите картинку : <input type="file" id="image" multiple accept="image/*"> </p>
         
         <button id="image-refresh" class="action">TO RGB565</button>
     </div>
@@ -76,9 +76,13 @@
     <div id="screen">
         <canvas id="render"></canvas>
     </div>
+    <div id="anim-nav" style="display : none;">
+        <button id="anim-nav-left">&lt;&lt;</button><span id="anim-n"></span><button id="anim-nav-right">&gt;&gt;</button>
+    </div>
     <div id="screen-output">
         
     </div>
+    
 </div>
 
 <div style="clear : both;"></div>
@@ -161,7 +165,7 @@ var imageConverter = new Object();
     }
     
     imageConverter.bufferToText = function(buffer, width, height) {
-         
+              
         var bits = '';  
         var byteData = '';
         /*
@@ -191,8 +195,25 @@ var imageConverter = new Object();
         return (((y - 1) * width) + x - 1) * 4;
     }
     
-    imageConverter.renderBuffer = function() {
+    imageConverter.animationSetCursor = function(n) {
+      if (typeof n != 'undefined') {
+            if (!imageConverter.animationBuffer) {
+                console.log('animation not inited');
+                return;
+            } else if (n > imageConverter.animationBuffer.length-1) {
+                n = 0;
+            } else if (n < 0) {
+                n = imageConverter.animationBuffer.length-1;
+            }
+            
+            imageConverter.animationN = n;
+            document.getElementById('anim-n').innerText = 'Кадр ' + imageConverter.animationN;
+        }
+    }
+    
+    imageConverter.renderBuffer = function(n) {
         
+              
         var pixelData = imageConverter.ctx.getImageData(0, 0, imageConverter.screenWidth, imageConverter.screenHeight);
         var i = 0;
         /*
@@ -214,7 +235,7 @@ var imageConverter = new Object();
         
         for(var y = 0; y <  imageConverter.screenHeight * imageConverter.screenWidth; y++) {
         
-             var rgb888 = imageConverter.rgb565to888(imageConverter.screenBuffer[y]);            
+             var rgb888 = imageConverter.rgb565to888(typeof n != 'undefined' ? imageConverter.animationBuffer[n][y] : imageConverter.screenBuffer[y]);            
             pixelData.data[i + 0] = rgb888[0];
             pixelData.data[i + 1] = rgb888[1];
             pixelData.data[i + 2] = rgb888[2];   
@@ -229,6 +250,8 @@ var imageConverter = new Object();
     
         ctx.clearRect(0, 0, imageConverter.screenWidth, imageConverter.screenHeight);
         ctx.putImageData(pixelData, 0, 0 ); 
+        
+        return n;
     }
     
     imageConverter.rgb888to565 = function(rgb888Pixel) {
@@ -264,9 +287,78 @@ var imageConverter = new Object();
         
         return [red, green, blue];
     }
+    
+    imageConverter.renderAnimationInput = function(onload) {
+    
+        imageConverter.animationN = 0;
+        
+        var files = document.getElementById('image').files;
+        if (files.length === 0) {
+            onload(false, 'Файлы не выбраны');
+            return;
+        }
+
+        var initWidth = 0;
+        var initHeight = 0;
+        
+        imageConverter.animationBuffer = [];        
+        var endRequest = false;
+        
+        imageConverter.print('Загружаю...');
+        
+        for (var i = 0; i < files.length; i++) {
+            var reader = new FileReader();
+            
+            reader.onload = function(e) {
+                if (endRequest) return;
+            
+                var img = new Image();
+                img.onload = function() {
+                    
+                    if (initWidth == 0) {                        
+                        initWidth = this.width;
+                        initHeight = this.height;
+                    }
+                    
+                    if (this.width !== initWidth || this.height !== initHeight) {
+                        endRequest = true;
+                        onload(false, 'Размеры изображений должны быть одинаковыми');                            
+                        return;
+                    }
+                    
+                    imageConverter.ctx.drawImage(img, 0, 0);
+                    var pixels = imageConverter.ctx.getImageData(0, 0, initWidth, initHeight);
+                    var frameBuffer = [];
+                    
+                    for (var j = 0; j < pixels.data.length; j += 4) {
+                        var r565 = imageConverter.rgb888to565([pixels.data[j], pixels.data[j+1], pixels.data[j+2]]);
+                        frameBuffer.push(r565);
+                    }
+                    
+                    imageConverter.animationBuffer.push(frameBuffer);
+                    
+                    imageConverter.print(imageConverter.animationBuffer.length  + ' / ' + files.length);
+                    
+                    if (imageConverter.animationBuffer.length === files.length) {
+                        imageConverter.initScreen(initWidth, initHeight);
+                        onload(true);                        
+                        return;
+                        //imageConverter.renderAnimationBuffer(imageConverter.animationBuffer);
+                    }
+                    
+                };
+                
+                img.src = e.target.result;
+            };
+            
+            reader.readAsDataURL(files[i]);
+        }
+    };
 
     imageConverter.renderFileInput = function() {
-
+    
+        document.getElementById('anim-nav').style = 'display : none;';
+        
         var file = document.getElementById('image');
         if (file.files.length <= 0) {
             return imageConverter.print('Файл не выбран');
@@ -336,7 +428,63 @@ var imageConverter = new Object();
             reader.readAsDataURL(file.files[0]);
     }
     
-    document.getElementById('image-refresh').onclick = imageConverter.renderFileInput;
+    imageConverter.renderAnimationBuffer = function() {
+    
+            var html = "<textarea>";
+                
+                html += '// total frames ' + imageConverter.animationBuffer.length + '; Frame : Width : ' + imageConverter.screenWidth + 'px | Height : ' + imageConverter.screenHeight;
+                html += "\r\n";
+                html += "\r\n";
+                html += 'uint16_t animation[' + imageConverter.screenWidth * imageConverter.screenHeight * imageConverter.animationBuffer.length + '] = {';
+                html += "\r\n";
+                html += "{";
+                for (var i = 0; i < imageConverter.animationBuffer.length; i++) {
+                    html += "\r\n\r\n\r\n\r\n\r\n\r\n";
+                    html += "/* -------------------------------------------- FRAME N[" + (i + 1) + "] ---- START ------------------------------------------------------- */ \r\n";
+                    html += "\r\n\r\n\r\n\r\n\r\n\r\n";
+                    html += imageConverter.bufferToText(imageConverter.animationBuffer[i], imageConverter.screenWidth, imageConverter.screenHeight);
+                    html += "\r\n\r\n\r\n\r\n\r\n\r\n";
+                    html += "/* -------------------------------------------- FRAME N[" + (i + 1) + "] ---- END ------------------------------------------------------- */ \r\n";
+                    html += "\r\n\r\n\r\n\r\n\r\n\r\n";
+                }
+                html += '};';
+            html += '</textarea>';
+            
+        document.getElementById('screen-output').innerHTML = html;
+    };
+
+    document.getElementById('anim-nav-left').onclick = function() {
+        imageConverter.animationSetCursor(imageConverter.animationN - 1);
+        imageConverter.animationN = imageConverter.renderBuffer(imageConverter.animationN);
+    };
+    
+    document.getElementById('anim-nav-right').onclick = function() {
+        imageConverter.animationSetCursor(imageConverter.animationN + 1);
+        imageConverter.renderBuffer(imageConverter.animationN);
+    };
+    
+    document.getElementById('image-refresh').onclick = function() {
+    
+        var file = document.getElementById('image');
+        if (file.files.length > 1) {
+             imageConverter.renderAnimationInput(function(result, error) {
+                
+                if (!result) {
+                    imageConverter.print(error);
+                } else {
+                    document.getElementById('anim-nav').style = "";
+                    imageConverter.animationSetCursor(0);
+                    imageConverter.renderBuffer(imageConverter.animationN);
+                    imageConverter.renderAnimationBuffer();
+                    imageConverter.print('OK');
+                }
+            } );
+                
+        } else {
+            imageConverter.renderFileInput();
+        }
+        
+    }
     document.getElementById('converter-565-output-refresh').onclick = imageConverter.update565ConvereterOut;
     document.getElementById('converter-888-output-refresh').onclick = function() {
         var value = document.getElementById('converter-888-input').value;
