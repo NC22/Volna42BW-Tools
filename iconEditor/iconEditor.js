@@ -413,7 +413,7 @@ var imageConverter = new Object();
 	imageConverter.initCopyright = function() {
 
 		var block = document.createElement('div');
-			block.innerHTML = '<a href="https://nradiowave.ru/dev/" target="_blank">nradiowave</a>&nbsp(проект - <a href="https://volna42.com/?kellyc=1" target="_blank">Волна 42</a>)&nbsp&nbsp©&nbsp&nbsp' + new Date().getFullYear();
+			block.innerHTML = '<a href="https://nradiowave.ru/dev/" target="_blank">nradiowave</a>&nbsp(проект - <a href="https://42volna.ru/?kellyc=1" target="_blank">Волна 42</a>)&nbsp&nbsp©&nbsp&nbsp' + new Date().getFullYear();
 			block.classList.add('copyright');
 			document.body.appendChild(block);
 	}
